@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 pub mod instructions;
 pub mod state;
+pub mod error;
 
 use instructions::*;
 
@@ -17,7 +18,7 @@ pub mod solana_fpl {
         payout_first: u64,
         payout_second: u64,
         payout_third: u64,
-        bet_amount: u128,
+        bet_amount: u64,
     ) -> Result<()> {
         instructions::initialize_escrow::handler_initialize_escrow(
             ctx,
@@ -29,6 +30,3 @@ pub mod solana_fpl {
         )
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}

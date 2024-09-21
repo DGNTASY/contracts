@@ -17,7 +17,7 @@ pub fn handler_initialize_escrow(
     payout_first: u64,
     payout_second: u64,
     payout_third: u64,
-    bet_amount: u128,
+    bet_amount: u64,
 ) -> Result<()> {
     let escrow_account = &mut ctx.accounts.escrow_account;
 
