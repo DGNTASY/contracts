@@ -1,31 +1,47 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-use crate::state::EscrowAccount;
 use crate::error::ErrorCode;
+use crate::state::{EscrowAccount, UserAccount};
 
 #[derive(Accounts)]
 pub struct Bet<'info> {
+    #[account(mut)]
+    pub escrow_account: Account<'info, EscrowAccount>,
+    #[account(
+        init,
+        seeds = [b"user", user.key().as_ref()],
+        bump,
+        payer = user, 
+        space = 8 + 32 + 1 + 8,
+    )]
+    pub user_account: Account<'info, UserAccount>,
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
     pub user_token_account: Account<'info, TokenAccount>,
     #[account(mut)]
     pub escrow_token_account: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub escrow_account: Account<'info, EscrowAccount>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler_bet(ctx: Context<Bet>) -> Result<()> {
     let escrow_account = &mut ctx.accounts.escrow_account;
+
     let bet_amount = escrow_account.bet_amount;
 
     let user_token_balance = ctx.accounts.user_token_account.amount;
-    require!(user_token_balance >= bet_amount, ErrorCode::InsufficientFunds);
+    require!(
+        user_token_balance >= bet_amount,
+        ErrorCode::InsufficientFunds
+    );
 
     transfer_to_escrow(ctx.accounts, bet_amount)?;
+
+    let user_account = &mut ctx.accounts.user_account;
+    user_account.is_eligible = false;
+
     Ok(())
 }
 
