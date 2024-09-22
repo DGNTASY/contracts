@@ -33,8 +33,11 @@ pub struct Bet<'info> {
 impl<'info> Bet<'info> {
     pub fn handler_bet(&mut self, bumps: &BetBumps) -> Result<()> {
         let bet_amount = self.escrow_account.bet_amount;
-
         let user_token_balance = self.user_token_account.amount;
+
+        msg!("Bet amount: {}", bet_amount);
+        msg!("User token balance: {}", user_token_balance);
+
         require!(
             user_token_balance >= bet_amount,
             ErrorCode::InsufficientFunds

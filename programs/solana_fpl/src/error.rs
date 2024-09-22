@@ -11,6 +11,8 @@ pub enum ErrorCode {
     Unauthorized,
     #[msg("Overflow while adding bet amount to escrow balance")]
     Overflow,
+    #[msg("Underflow while passing payout from escrow to user")]
+    Underflow,
     #[msg("Token transfer failed")]
     TokenTransferFailed,
     #[msg("User is not eligible to claim")]
