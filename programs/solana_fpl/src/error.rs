@@ -13,4 +13,6 @@ pub enum ErrorCode {
     Overflow,
     #[msg("Token transfer failed")]
     TokenTransferFailed,
+    #[msg("User is not eligible to claim")]
+    NotEligible,
 }

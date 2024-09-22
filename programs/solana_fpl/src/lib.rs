@@ -33,4 +33,8 @@ pub mod solana_fpl {
     pub fn set_eligibility(ctx: Context<SetEligibility>, payout_amount: u64) -> Result<()> {
         ctx.accounts.handler_set_eligibility(payout_amount)
     }
+
+    pub fn claim_winner(ctx: Context<ClaimWinner>) -> Result<()> {
+        ctx.accounts.handler_claim_winner()
+    }
 }
