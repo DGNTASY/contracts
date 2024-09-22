@@ -4,7 +4,13 @@ use crate::state::EscrowAccount;
 
 #[derive(Accounts)]
 pub struct InitializeEscrow<'info> {
-    #[account(init, payer = owner, space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 16)]
+    #[account(
+        init,
+        seeds = [b"escrow"],
+        bump,
+        payer = owner, 
+        space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 16
+    )]
     pub escrow_account: Account<'info, EscrowAccount>,
     #[account(mut)]
     pub owner: Signer<'info>,
@@ -14,22 +20,20 @@ pub struct InitializeEscrow<'info> {
 pub fn handler_initialize_escrow(
     ctx: Context<InitializeEscrow>,
     usdc_mint: Pubkey,
-    payout_first: u64,
-    payout_second: u64,
-    payout_third: u64,
+    total_pot_for_winners: u64,
     bet_amount: u64,
+    bumps: &InitializeEscrowBumps
 ) -> Result<()> {
     let escrow_account = &mut ctx.accounts.escrow_account;
 
     escrow_account.authority = ctx.accounts.owner.key();
     escrow_account.usdc_mint = usdc_mint;
 
-    escrow_account.payout_first = payout_first;
-    escrow_account.payout_second = payout_second;
-    escrow_account.payout_third = payout_third;
+    escrow_account.total_pot_for_winners = total_pot_for_winners;
 
     escrow_account.bet_amount = bet_amount;
     escrow_account.usdc_balance = 0;
+    escrow_account.bump = bumps.escrow_account;
 
     Ok(())
 }

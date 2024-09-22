@@ -26,7 +26,7 @@ pub struct Bet<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler_bet(ctx: Context<Bet>) -> Result<()> {
+pub fn handler_bet(ctx: Context<Bet>, bumps: &BetBumps) -> Result<()> {
     let escrow_account = &mut ctx.accounts.escrow_account;
 
     let bet_amount = escrow_account.bet_amount;
@@ -41,6 +41,7 @@ pub fn handler_bet(ctx: Context<Bet>) -> Result<()> {
 
     let user_account = &mut ctx.accounts.user_account;
     user_account.is_eligible = false;
+    user_account.bump = bumps.user_account;
 
     Ok(())
 }

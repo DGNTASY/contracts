@@ -7,4 +7,5 @@ pub struct EscrowAccount {
     pub total_pot_for_winners: u64,
     pub bet_amount: u64,
     pub usdc_balance: u128,
+    pub bump: u8,
 }
