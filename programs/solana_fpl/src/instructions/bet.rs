@@ -17,7 +17,7 @@ pub struct Bet<'info> {
         seeds = [b"user", user.key().as_ref()],
         bump,
         payer = user, 
-        space = 8 + 32 + 1 + 8,
+        space = 8 + 32 + 1 + 8 + 1,
     )]
     pub user_account: Account<'info, UserAccount>,
     #[account(mut)]
@@ -30,39 +30,38 @@ pub struct Bet<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler_bet(ctx: Context<Bet>, bumps: &BetBumps) -> Result<()> {
-    let escrow_account = &mut ctx.accounts.escrow_account;
+impl<'info> Bet<'info> {
+    pub fn handler_bet(&mut self, bumps: &BetBumps) -> Result<()> {
+        let bet_amount = self.escrow_account.bet_amount;
 
-    let bet_amount = escrow_account.bet_amount;
+        let user_token_balance = self.user_token_account.amount;
+        require!(
+            user_token_balance >= bet_amount,
+            ErrorCode::InsufficientFunds
+        );
 
-    let user_token_balance = ctx.accounts.user_token_account.amount;
-    require!(
-        user_token_balance >= bet_amount,
-        ErrorCode::InsufficientFunds
-    );
+        self.transfer_to_escrow(bet_amount)?;
 
-    transfer_to_escrow(ctx.accounts, bet_amount)?;
+        self.user_account.owner = self.user.key();
+        self.user_account.is_eligible = false;
+        self.user_account.bump = bumps.user_account;
 
-    let user_account = &mut ctx.accounts.user_account;
+        Ok(())
+    }
 
-    user_account.owner = ctx.accounts.user.key();
-    user_account.is_eligible = false;
-    user_account.bump = bumps.user_account;
+    fn transfer_to_escrow(&mut self, amount: u64) -> Result<()> {
+        let cpi_accounts = Transfer {
+            from: self.user_token_account.to_account_info(),
+            to: self.escrow_token_account.to_account_info(),
+            authority: self.user.to_account_info(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-    Ok(())
-}
+        token::transfer(cpi_ctx, amount)?;
 
-fn transfer_to_escrow<'info>(accounts: &mut Bet<'info>, amount: u64) -> Result<()> {
-    let cpi_accounts = Transfer {
-        from: accounts.user_token_account.to_account_info(),
-        to: accounts.escrow_token_account.to_account_info(),
-        authority: accounts.user.to_account_info(),
-    };
-    let cpi_program = accounts.token_program.to_account_info();
-    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    token::transfer(cpi_ctx, amount)?;
-    let escrow_account = &mut accounts.escrow_account;
-    escrow_account.usdc_balance += amount as u128;
+        self.escrow_account.usdc_balance += amount as u128;
 
-    Ok(())
+        Ok(())
+    }
 }

@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
+pub mod error;
 pub mod instructions;
 pub mod state;
-pub mod error;
 
 use instructions::*;
 
@@ -15,18 +15,22 @@ pub mod solana_fpl {
     pub fn initialize_escrow(
         ctx: Context<InitializeEscrow>,
         usdc_mint: Pubkey,
-        payout_first: u64,
-        payout_second: u64,
-        payout_third: u64,
+        total_pot_for_winners: u64,
         bet_amount: u64,
     ) -> Result<()> {
-        instructions::initialize_escrow::handler_initialize_escrow(
-            ctx,
+        ctx.accounts.handler_initialize_escrow(
             usdc_mint,
-            payout_first,
-            payout_second,
-            payout_third,
+            total_pot_for_winners,
             bet_amount,
+            &ctx.bumps,
         )
+    }
+
+    pub fn bet(ctx: Context<Bet>) -> Result<()> {
+        ctx.accounts.handler_bet(&ctx.bumps)
+    }
+
+    pub fn set_eligibility(ctx: Context<SetEligibility>, payout_amount: u64) -> Result<()> {
+        ctx.accounts.handler_set_eligibility(payout_amount)
     }
 }
