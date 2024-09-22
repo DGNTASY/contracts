@@ -4,7 +4,7 @@ use crate::state::EscrowAccount;
 
 #[derive(Accounts)]
 pub struct InitializeEscrow<'info> {
-    #[account(init, payer = owner, space = 8 + 32 + 32 + 8 + 8 + 8 + 16 + 8)]
+    #[account(init, payer = owner, space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 16)]
     pub escrow_account: Account<'info, EscrowAccount>,
     #[account(mut)]
     pub owner: Signer<'info>,

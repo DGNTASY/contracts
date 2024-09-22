@@ -5,4 +5,6 @@ use anchor_lang::prelude::*;
 pub enum ErrorCode {
     #[msg("Invalid amount provided.")]
     InvalidAmount,
+    #[msg("Insufficient funds in the user's token account.")]
+    InsufficientFunds,
 }

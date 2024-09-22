@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
 use crate::state::EscrowAccount;
+use crate::error::ErrorCode;
 
 #[derive(Accounts)]
 pub struct Bet<'info> {
@@ -20,6 +21,10 @@ pub struct Bet<'info> {
 pub fn handler_bet<'info>(ctx: Context<Bet>) -> Result<()> {
     let escrow_account = &mut ctx.accounts.escrow_account;
     let bet_amount = escrow_account.bet_amount;
+
+    let user_token_balance = ctx.accounts.user_token_account.amount;
+    require!(user_token_balance >= bet_amount, ErrorCode::InsufficientFunds);
+
     transfer_to_escrow(ctx.accounts, bet_amount)?;
     Ok(())
 }
