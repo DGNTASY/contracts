@@ -7,4 +7,6 @@ pub enum ErrorCode {
     InvalidAmount,
     #[msg("Insufficient funds in the user's token account.")]
     InsufficientFunds,
+    #[msg("Unauthorized to perform this action")]
+    Unauthorized,
 }

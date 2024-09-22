@@ -6,7 +6,11 @@ use crate::state::{EscrowAccount, UserAccount};
 
 #[derive(Accounts)]
 pub struct Bet<'info> {
-    #[account(mut)]
+    #[account(
+        mut,
+        seeds = [b"escrow"],
+        bump = escrow_account.bump,
+    )]
     pub escrow_account: Account<'info, EscrowAccount>,
     #[account(
         init,
@@ -40,6 +44,8 @@ pub fn handler_bet(ctx: Context<Bet>, bumps: &BetBumps) -> Result<()> {
     transfer_to_escrow(ctx.accounts, bet_amount)?;
 
     let user_account = &mut ctx.accounts.user_account;
+
+    user_account.owner = ctx.accounts.user.key();
     user_account.is_eligible = false;
     user_account.bump = bumps.user_account;
 

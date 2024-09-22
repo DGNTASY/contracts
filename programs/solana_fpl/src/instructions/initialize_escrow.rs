@@ -9,7 +9,7 @@ pub struct InitializeEscrow<'info> {
         seeds = [b"escrow"],
         bump,
         payer = owner, 
-        space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 16
+        space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 16,
     )]
     pub escrow_account: Account<'info, EscrowAccount>,
     #[account(mut)]
