@@ -15,7 +15,7 @@ pub struct SetEligibility<'info> {
     pub escrow_account: Account<'info, EscrowAccount>,
     #[account(
         mut, 
-        seeds = [b"user", user.key().as_ref()], 
+        seeds = [b"user", user.key().as_ref()],
         bump = user_account.bump,
     )]
     pub user_account: Account<'info, UserAccount>,
@@ -29,6 +29,8 @@ impl<'info> SetEligibility<'info> {
             self.authority.key() == self.escrow_account.authority,
             ErrorCode::Unauthorized
         );
+
+        require!(payout_amount > 0, ErrorCode::InvalidAmount);
 
         self.user_account.is_eligible = true;
         self.user_account.payout_amount = payout_amount;

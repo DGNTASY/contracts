@@ -9,4 +9,8 @@ pub enum ErrorCode {
     InsufficientFunds,
     #[msg("Unauthorized to perform this action")]
     Unauthorized,
+    #[msg("Overflow while adding bet amount to escrow balance")]
+    Overflow,
+    #[msg("Token transfer failed")]
+    TokenTransferFailed,
 }

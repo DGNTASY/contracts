@@ -58,9 +58,13 @@ impl<'info> Bet<'info> {
         let cpi_program = self.token_program.to_account_info();
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        token::transfer(cpi_ctx, amount)?;
+        token::transfer(cpi_ctx, amount).map_err(|_| ErrorCode::TokenTransferFailed)?;
 
-        self.escrow_account.usdc_balance += amount as u128;
+        self.escrow_account.usdc_balance = self
+            .escrow_account
+            .usdc_balance
+            .checked_add(amount as u128)
+            .ok_or(ErrorCode::Overflow)?;
 
         Ok(())
     }
