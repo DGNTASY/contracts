@@ -28,16 +28,16 @@ describe("solana_fpl", () => {
 
   const totalPotForWinners = new anchor.BN(10000000);
   const betAmount = new anchor.BN(1000000);
+  const payoutAmount = new anchor.BN(100000);
 
   beforeEach(async () => {
-
     const connection = new Connection("http://127.0.0.1:8899", "confirmed");
 
     owner = await getKeypairFromFile(
       "/home/ritikbhatt020/multi-token-escrow/keys/admin-CAT5qnvWfU9LQyprcLrXDMMifR6tL95nCrsNk8Mx12C7.json"
     );
     user = await getKeypairFromFile("./tests/userKeypair.json");
-    console.log("user:", user.publicKey)
+    console.log("user:", user.publicKey);
     console.log("hi");
     usdcMint = new PublicKey("DAG4KRYrzFuuV3TBqZnvPfW4ZJirMoBa7MjBfKmMc4kN");
 
@@ -128,7 +128,7 @@ describe("solana_fpl", () => {
   it("Places a bet", async () => {
     console.log("user:", user.publicKey);
     console.log("userTokenAccount:", userTokenAccount);
-    console.log("escrowAccountAccount:", escrowTokenAccount)
+    console.log("escrowAccountAccount:", escrowTokenAccount);
     const tx = await program.methods
       .bet()
       .accounts({
@@ -144,9 +144,9 @@ describe("solana_fpl", () => {
     const userAccountState = await program.account.userAccount.fetch(
       userAccount
     );
-    console.log("userAccountPda:", userAccountState)
-    console.log("userAccountPda:", userAccountState.isEligible)
-    console.log("userAccountPda:", userAccountState.payoutAmount)
+    console.log("userAccountPda:", userAccountState);
+    console.log("userAccountPda:", userAccountState.isEligible);
+    console.log("userAccountPda:", userAccountState.payoutAmount);
 
     assert.equal(
       userAccountState.owner.toBase58(),
@@ -166,6 +166,34 @@ describe("solana_fpl", () => {
       escrowAccountState.usdcBalance.toString(),
       betAmount.toString(),
       "Escrow USDC balance should match bet amount"
+    );
+  });
+
+  it("Sets user eligibility and payout amount", async () => {
+    const tx = await program.methods
+      .setEligibility(payoutAmount)
+      .accounts({
+        user: user.publicKey,
+      })
+      .signers([owner])
+      .rpc();
+
+    console.log("Transaction:", tx);
+
+    const userAccountState = await program.account.userAccount.fetch(
+      userAccount
+    );
+    console.log("paymout amount:", userAccountState.payoutAmount.toNumber())
+
+    assert.isTrue(
+      userAccountState.isEligible,
+      "User should be eligible after setting eligibility"
+    );
+
+    assert.equal(
+      userAccountState.payoutAmount.toString(),
+      payoutAmount.toString(),
+      "Payout amount should match the provided amount"
     );
   });
 });
