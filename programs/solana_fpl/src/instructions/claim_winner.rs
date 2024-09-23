@@ -58,7 +58,7 @@ impl<'info> ClaimWinner<'info> {
             .escrow_account
             .usdc_balance
             .checked_sub(amount as u128)
-            .ok_or(ErrorCode::Overflow)?;
+            .ok_or(ErrorCode::Underflow)?;
 
         Ok(())
     }
