@@ -183,7 +183,7 @@ describe("solana_fpl", () => {
     const userAccountState = await program.account.userAccount.fetch(
       userAccount
     );
-    console.log("paymout amount:", userAccountState.payoutAmount.toNumber())
+    console.log("paymout amount:", userAccountState.payoutAmount.toNumber());
 
     assert.isTrue(
       userAccountState.isEligible,
@@ -194,6 +194,34 @@ describe("solana_fpl", () => {
       userAccountState.payoutAmount.toString(),
       payoutAmount.toString(),
       "Payout amount should match the provided amount"
+    );
+  });
+
+  it("Claims winnings and transfers tokens to the user", async () => {
+    const tx = await program.methods
+      .claimWinner()
+      .accounts({
+        user: user.publicKey,
+        userTokenAccount: userTokenAccount,
+        escrowTokenAccount: escrowTokenAccount,
+      })
+      .signers([user])
+      .rpc();
+
+    console.log("Transaction:", tx);
+
+    const userAccountState = await program.account.userAccount.fetch(
+      userAccount
+    );
+
+    assert.isFalse(
+      userAccountState.isEligible,
+      "User should no longer be eligible after claiming"
+    );
+    assert.equal(
+      userAccountState.payoutAmount.toString(),
+      "0",
+      "Payout amount should be reset to 0 after claiming"
     );
   });
 });
