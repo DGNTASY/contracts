@@ -6,7 +6,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("8j5Fm6UKtk7rV4xZGXEQZcHZnSKqxx6aEeSkHEac7K2W");
+declare_id!("C2UtySaTEu3N6Xf44wSatpdAvrMdvUmAKAfFXRUERmr1");
 
 #[program]
 pub mod solana_fpl {
